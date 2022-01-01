@@ -38,6 +38,7 @@ dependencies:
   postgres: ^2.4.3
 
 dev_dependencies:
+  test: any
   flutter_test:
     sdk: flutter
 
