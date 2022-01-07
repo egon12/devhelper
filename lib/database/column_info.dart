@@ -5,29 +5,29 @@ extension RowDataExtension on RowData {
     return this[colInfo.id];
   }
 
-  String jetStringValue(ColumnInfo colInfo) {
+  String getStringValue(ColumnInfo colInfo) {
     return getValue(colInfo)?.toString() ?? '';
   }
 }
 
-typedef RowsData = Iterable<RowData>;
+typedef RowsData = List<RowData>;
 
 class ColumnInfo {
   ColumnInfo(this.id, this.label,
-      {this.isPrimaryKey = false, this.sort = Sort.none, this.textAlign = TextAlign.left });
+      {this.isPrimaryKey = false, this.sort = Sort.none, this.align = Align.left });
 
-  ColumnInfo.withId(String id, {sort = Sort.none, textAlign = TextAlign.left} ) : this(id, id.capitalize(), sort: sort, textAlign: textAlign);
+  ColumnInfo.withId(String id, {sort = Sort.none, align = Align.left} ) : this(id, id.capitalize(), sort: sort, align: align);
 
   final String id;
   final String label;
   final bool isPrimaryKey;
   final Sort sort;
-  final TextAlign textAlign;
+  final Align align;
 }
 
 enum Sort { none, asc, desc }
 
-enum TextAlign { left, center, right }
+enum Align { left, center, right }
 
 typedef ColumnsInfo = List<ColumnInfo>;
 

@@ -1,6 +1,5 @@
+import 'package:flutter/material.dart' hide Align;
 import 'package:devhelper/database/column_info.dart';
-import 'package:flutter/material.dart';
-import 'string_extensions.dart';
 
 class DBTable extends StatefulWidget {
   @override
@@ -11,14 +10,14 @@ class DBTable extends StatefulWidget {
   var columns = ['id', 'name', 'age', 'last_seen'];
 
   var cols = [
-    ColumnInfo('id', 'ID', isPrimaryKey: true, sort: Sort.asc),
+    ColumnInfo('id', 'ID', isPrimaryKey: true, sort: Sort.asc, align: Align.right),
     ColumnInfo.withId('name'),
-    ColumnInfo.withId('age'),
+    ColumnInfo.withId('age', align: Align.right),
     ColumnInfo.withId('another'),
-    ColumnInfo('last_seen', 'Last Seen'),
+    ColumnInfo('last_seen', 'Last Seen', align: Align.center),
   ];
 
-  var data = [
+  RowsData data = [
     {
       'id': 1,
       'name': 'Richolas',
@@ -200,7 +199,7 @@ class DBTableState extends State<DBTable> {
 class TableInListView extends StatefulWidget {
   final ColumnsInfo colsInfo;
 
-  final List<Map<String, Object?>> data;
+  final RowsData data;
 
   const TableInListView({Key? key, required this.colsInfo, required this.data})
       : super(key: key);
@@ -215,35 +214,89 @@ class TableInListViewState extends State<TableInListView> {
 
   Map<String, double> colsWidth = {};
 
-  Widget itemBuilder(BuildContext, int index) {
+  Widget itemBuilder(BuildContext ctx, int index) {
     var item = widget.data[index];
-    if (item == null) return Container();
-
     var key = widget.colsInfo.getKey(item);
-    if (key == null) return Container();
-
-    var children = widget.colsInfo.map((c) {
-      var v = item[c.id];
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2.0),
-        child: Container(
-          width: colsWidth[c.id],
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.white)),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(v.toString()),
-          ),
-        ),
-      );
-    }).toList();
+    var children = widget.colsInfo.map((c) => cell(c, item)).toList();
 
     return Row(
       key: key,
       children: children,
     );
   }
+
+
+  @override
+  Widget build(BuildContext context) {
+    var width = calculateWidth();
+
+    return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Container(
+            width: width, 
+            child: Column(
+                children: [
+                  header(),
+                  Expanded(
+                      child: ListView.builder(
+                          itemBuilder: itemBuilder,
+                          itemCount: widget.data.length,
+                      ),
+                  ),
+                ]
+            )
+        )
+    );
+  }
+
+  Widget header() {
+    return Row(children: widget.colsInfo.map((c) => cellHeader(c)).toList());
+  }
+
+  Widget cellHeader(ColumnInfo c) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Container(
+        width: getColsWidth(c),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(width: 4, color: Colors.white)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(
+              c.label, 
+              textAlign: c.getTextAlign(),
+              maxLines: 1,
+              style: const TextStyle( 
+                  fontWeight: FontWeight.bold 
+              ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget cell(ColumnInfo c, RowData row) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Container(
+        width: getColsWidth(c),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(width: 0, color: Colors.white)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+            child: Text(
+                row.getStringValue(c), 
+                textAlign: c.getTextAlign(),
+                maxLines: 1,
+                ),
+        ),
+      ),
+    );
+  }
+
+  double? getColsWidth(ColumnInfo c)  => colsWidth[c.id];
 
   var tp = TextPainter(
     textDirection: TextDirection.ltr,
@@ -282,32 +335,21 @@ class TableInListViewState extends State<TableInListView> {
 
     return colsWidth[ci.id]!;
   }
-
-  @override
-  Widget build(BuildContext context) {
-    var width = calculateWidth();
-
-    return Column(
-
-      children: [
-
-      Expanded(child: SingleChildScrollView(
-      
-      scrollDirection: Axis.horizontal,
-      child: Container(
-          //size: const Size(800, 800),
-          width: width,
-          //height: 900,
-          child: ListView.builder(
-              itemBuilder: itemBuilder,
-              itemCount: widget.data.length,
-          ),
-      ))),
-        ]
-    );
-  }
 }
 
 extension ColumnsInfoKey on ColumnsInfo {
   getKey(RowData row) => ValueKey('row-' + getId(row));
+}
+
+extension TextAlingExtension on ColumnInfo {
+  TextAlign getTextAlign() {
+    switch(align) {
+      case Align.left:
+        return TextAlign.left;
+      case Align.center:
+        return TextAlign.center;
+      case Align.right:
+        return TextAlign.right;
+    }
+  }
 }
