@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         brightness: Brightness.dark,
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.blueGrey,
       ),
       home: MyHomePage(title: 'Flutter Home Page'),
     );
@@ -60,6 +60,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return DBTable();
+    //return DBTable();
+    return EditDB();
   }
 }

@@ -1,98 +1,136 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'mfizz_icon.dart';
 
-class EditDB extends StatefulWidget {
+class _Controller extends GetxController {
+  final Map<String, TextEditingController> _textControllerMap = {
+    "username": TextEditingController(),
+    "password": TextEditingController(),
+    "host": TextEditingController(),
+    "port": TextEditingController(),
+    "database": TextEditingController(),
+  };
+
+  final Map<String, String> _value = {
+    "dbtype": 'postgres',
+    "username": '',
+    "password": '',
+    "host": '',
+    "port": '',
+    "database": '',
+  };
+
+  getTextController(name) {
+    return _textControllerMap[name];
+  }
+
+  List<bool> dbtypesToggle = [false, false].obs;
+
+  submit() {
+    _textControllerMap.forEach((name, tc) {
+      _value[name] = tc.text;
+    });
+
+    print(_value);
+  }
+
+  void selectDbType(int index) {
+    for (var i = 0; i < dbtypesToggle.length; i++) {
+      if (i == index) {
+        dbtypesToggle[i] = true;
+      } else {
+        dbtypesToggle[i] = false;
+      }
+    }
+  }
+}
+
+class EditDB extends StatelessWidget {
   EditDB({Key? key}) : super(key: key);
 
   final focusNode = FocusNode(debugLabel: 'EditDB');
 
   @override
-  State<StatefulWidget> createState() {
-    return EditDBState();
-  }
-}
-
-class EditDBState extends State<EditDB> {
-  @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(middle: Text('Database')),
-      child: SafeArea(
+    var ctrl = Get.put(_Controller());
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Database')),
+      body: SafeArea(
         child: SingleChildScrollView(
           child: Column(children: [
-            Form(
-              autovalidateMode: AutovalidateMode.always,
-              child: CupertinoFormSection.insetGrouped(
-                header: const Text('Insert DB'),
-                children: [
-                  CupertinoTextFormFieldRow(
-                    prefix: const Label('DB Conn'),
-                    placeholder: 'postgres://user:pass@host:5432/dbname',
-                    maxLines: 4,
-                    minLines: 2,
-                    textInputAction: TextInputAction.next,
-                  ),
-                  CupertinoFormRow(
-                    child: CupertinoButton.filled(
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                autovalidateMode: AutovalidateMode.always,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'DB Conn',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 4,
+                      minLines: 2,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    TextButton(
                       child: const Text('Extract'),
                       onPressed: () {},
-                    ),
-                  ),
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-            Form(
-              autovalidateMode: AutovalidateMode.always,
-              child: CupertinoFormSection.insetGrouped(
-                header: const Text('Connection Detail'),
-                children: [
-                  CupertinoFormRow(
-                    prefix: const Label('DB Type'),
-                    child: CupertinoSlidingSegmentedControl(
-                      onValueChanged: (value) {},
-                      groupValue: 1,
-                      children: {
-                        1: Image.asset('images/postgre_logo.webp', height: 100),
-                        2: Image.asset('images/mysql_logo.webp', height: 100),
-                      },
-                    ),
-                  ),
-                  CupertinoTextFormFieldRow(
-                    prefix: const Label('Username'),
-                    placeholder: 'user',
-                    textInputAction: TextInputAction.next,
-                  ),
-                  CupertinoTextFormFieldRow(
-                    obscureText: true,
-                    prefix: const Label('Password'),
-                    placeholder: 'password',
-                    textInputAction: TextInputAction.next,
-                  ),
-                  CupertinoTextFormFieldRow(
-                    prefix: const Label('Host'),
-                    placeholder: '127.0.0.1',
-                    textInputAction: TextInputAction.next,
-                  ),
-                  CupertinoTextFormFieldRow(
-                    prefix: const Label('Port'),
-                    placeholder: '5432',
-                    textInputAction: TextInputAction.next,
-                  ),
-                  CupertinoTextFormFieldRow(
-                    prefix: const Label('Database'),
-                    placeholder: 'my_database',
-                    textInputAction: TextInputAction.next,
-                  ),
-                  CupertinoFormRow(
-                    prefix: CupertinoButton(
-                      child: const Text('Test'),
-                      onPressed: () {},
-                    ),
-                    child: CupertinoButton.filled(
-                      child: const Text('Save'),
-                      onPressed: () {},
-                    ),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                autovalidateMode: AutovalidateMode.always,
+                child: Column(
+                  children: [
+                    Obx(() => ToggleButtons(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Row(
+                                children: const [
+                                  Icon(Mfizz.postgres),
+                                  Text("PostgreSQL"),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Row(
+                                children: const [
+                                  Icon(Mfizz.mysqlAlt),
+                                  Text("MySQL"),
+                                ],
+                              ),
+                            ),
+                          ],
+                          onPressed: ctrl.selectDbType,
+                          isSelected: ctrl.dbtypesToggle,
+                        )),
+                    const EditTextField("username"),
+                    const EditTextField("password"),
+                    const EditTextField("host"),
+                    const EditTextField("port"),
+                    const EditTextField("database"),
+                    ButtonBar(children: [
+                      TextButton(
+                        child: const Text('Test'),
+                        onPressed: () {
+                          ctrl.submit();
+                        },
+                      ),
+                      ElevatedButton(
+                        child: const Text('Save'),
+                        onPressed: () {},
+                      ),
+                    ]),
+                  ],
+                ),
               ),
             ),
           ]),
@@ -112,6 +150,32 @@ class Label extends StatelessWidget {
     return Text(
       text,
       style: const TextStyle(fontSize: 12),
+    );
+  }
+}
+
+class EditTextField extends StatelessWidget {
+  const EditTextField(
+    this.label, {
+    Key? key,
+  }) : super(key: key);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final _Controller ctrl = Get.find();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: label.capitalizeFirst,
+          border: const OutlineInputBorder(),
+        ),
+        textInputAction: TextInputAction.next,
+        controller: ctrl.getTextController(label),
+      ),
     );
   }
 }
