@@ -42,6 +42,12 @@ class _Controller extends GetxController {
         dbtypesToggle[i] = false;
       }
     }
+
+    if (index == 0) {
+      _value['dbtype'] = 'postgres';
+    } else if (index == 1) {
+      _value['dbtype'] = 'mysql';
+    }
   }
 }
 

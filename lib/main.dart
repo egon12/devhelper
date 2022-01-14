@@ -1,5 +1,7 @@
+import 'package:devhelper/main_list.dart';
 import 'package:devhelper/query.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'edit_db.dart';
 import 'query.dart';
 import 'table.dart';
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -60,7 +62,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    //return DBTable();
-    return EditDB();
+    return MainList();
   }
 }

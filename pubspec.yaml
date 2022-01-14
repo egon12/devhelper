@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   get: any
   postgres: ^2.4.3
+  uuid: ^3.0.5
 
 dev_dependencies:
   test: any
