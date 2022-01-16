@@ -60,7 +60,7 @@ void main() {
 Database? db;
 Future<Database> getDB() async {
   if (db != null) {
-    await db!.execute(DBConnInfoRepo.downgrade);
+    await db!.execute(DBConnInfoRepo.dropQuery);
     await db!.execute(DBConnInfoRepo.createQuery);
     return db!;
   }

@@ -1,29 +1,39 @@
-import 'package:devhelper/main_list.dart';
-import 'package:devhelper/query.dart';
+import 'package:devhelper/edit_db.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'edit_db.dart';
-import 'query.dart';
-import 'table.dart';
+import 'storage/db.dart';
+import 'main_list.dart';
+import 'main_binding.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  MainBinding mainBinding = MainBinding();
+  mainBinding.db = await getDB();
+
+  runApp(
+    MyApp(mainBinding: mainBinding),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final MainBinding mainBinding;
 
-  // This widget is the root of your application.
+  const MyApp({Key? key, required this.mainBinding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'Dev Helper',
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blueGrey,
       ),
-      home: MyHomePage(title: 'Flutter Home Page'),
+      home: const MainList(),
+      initialBinding: mainBinding,
+      getPages: [
+        EditDBGetPage,
+      ],
     );
   }
 
@@ -39,29 +49,4 @@ class MyApp extends StatelessWidget {
     );
   }
   */
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return MainList();
-  }
 }

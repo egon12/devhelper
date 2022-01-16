@@ -1,8 +1,58 @@
+import 'package:devhelper/database/db_conn.dart';
+import 'package:devhelper/database/db_conn_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'mfizz_icon.dart';
 
-class _Controller extends GetxController {
+var EditDBGetPage = GetPage(
+  name: "/db/edit",
+  page: () => EditDB(),
+  binding: EditDBBinding(),
+);
+
+class EditDBBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(EditDBController());
+  }
+}
+
+class EditDBController extends GetxController {
+  DBConnInfo? arguments = Get.arguments;
+
+  final DBConnInfoRepo _repo = Get.find();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _fillWithArguments();
+  }
+
+  void _fillWithArguments() {
+    var arg = arguments;
+    if (arg == null) {
+      return;
+    }
+    switch (arg.url.scheme) {
+      case 'postgres':
+        dbtypesToggle[0] = true;
+        break;
+      case 'mysql':
+        dbtypesToggle[1] = true;
+        break;
+      default:
+    }
+    var userInfos = arg.url.userInfo.split(':');
+    var username = userInfos[0];
+    var password = userInfos.length > 1 ? userInfos[1] : '';
+
+    getTextController('username').text = username;
+    getTextController('password').text = password;
+    getTextController('host').text = arg.url.host;
+    getTextController('port').text = arg.url.port.toString();
+    getTextController('database').text = arg.url.path;
+  }
+
   final Map<String, TextEditingController> _textControllerMap = {
     "username": TextEditingController(),
     "password": TextEditingController(),
@@ -26,12 +76,33 @@ class _Controller extends GetxController {
 
   List<bool> dbtypesToggle = [false, false].obs;
 
-  submit() {
+  Uri getUri() {
     _textControllerMap.forEach((name, tc) {
       _value[name] = tc.text;
     });
 
-    print(_value);
+    return Uri(
+      scheme: _value['dbtype'],
+      userInfo: _getUserInfo(),
+      host: _value['host'],
+      port: int.parse(_value['port'] ?? ''),
+      path: _value['database'],
+    );
+  }
+
+  Future<void> save() async {
+    var url = getUri();
+    var conn = arguments ?? DBConnInfo.url(url.toString())
+      ..url = url;
+    await _repo.save(conn);
+  }
+
+  String _getUserInfo() {
+    if (_value['password']?.isEmpty ?? false) {
+      return _value['username'] ?? '';
+    }
+
+    return (_value['username'] ?? '') + ':' + _value['password']!;
   }
 
   void selectDbType(int index) {
@@ -51,15 +122,13 @@ class _Controller extends GetxController {
   }
 }
 
-class EditDB extends StatelessWidget {
+class EditDB extends GetView<EditDBController> {
   EditDB({Key? key}) : super(key: key);
 
   final focusNode = FocusNode(debugLabel: 'EditDB');
 
   @override
   Widget build(BuildContext context) {
-    var ctrl = Get.put(_Controller());
-
     return Scaffold(
       appBar: AppBar(title: Text('Database')),
       body: SafeArea(
@@ -115,8 +184,8 @@ class EditDB extends StatelessWidget {
                               ),
                             ),
                           ],
-                          onPressed: ctrl.selectDbType,
-                          isSelected: ctrl.dbtypesToggle,
+                          onPressed: controller.selectDbType,
+                          isSelected: controller.dbtypesToggle,
                         )),
                     const EditTextField("username"),
                     const EditTextField("password"),
@@ -126,13 +195,11 @@ class EditDB extends StatelessWidget {
                     ButtonBar(children: [
                       TextButton(
                         child: const Text('Test'),
-                        onPressed: () {
-                          ctrl.submit();
-                        },
+                        onPressed: () {},
                       ),
                       ElevatedButton(
                         child: const Text('Save'),
-                        onPressed: () {},
+                        onPressed: controller.save,
                       ),
                     ]),
                   ],
@@ -160,7 +227,7 @@ class Label extends StatelessWidget {
   }
 }
 
-class EditTextField extends StatelessWidget {
+class EditTextField extends GetView<EditDBController> {
   const EditTextField(
     this.label, {
     Key? key,
@@ -170,8 +237,6 @@ class EditTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _Controller ctrl = Get.find();
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
@@ -180,7 +245,7 @@ class EditTextField extends StatelessWidget {
           border: const OutlineInputBorder(),
         ),
         textInputAction: TextInputAction.next,
-        controller: ctrl.getTextController(label),
+        controller: controller.getTextController(label),
       ),
     );
   }

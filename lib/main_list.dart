@@ -1,32 +1,101 @@
-import 'package:devhelper/edit_db.dart';
-import 'package:devhelper/query.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'uuid.dart';
+
+import 'database/db_conn.dart';
+import 'edit_db.dart';
+import 'main_controller.dart';
+import 'query.dart';
 import 'mfizz_icon.dart';
 
-class _Conn {
-  final Uri url;
-  final String uuid;
+class MainList extends GetView<MainController> {
+  const MainList({Key? key}) : super(key: key);
 
-  _Conn({required this.url, required this.uuid});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Projects'),
+      ),
+      body: controller.rx.obx(
+        (state) => ListView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            var conn = state?[index];
 
-  factory _Conn.name(String name) =>
-      _Conn(url: Uri.parse(name), uuid: genUUIDFromName(name));
+            return DBConnInfoListTile(
+              conn: conn,
+              select: () => controller.select(conn),
+              delete: () => controller.delete(conn),
+            );
+          },
+          itemCount: state?.length ?? 0,
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.toNamed('db/edit');
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
 }
 
-var connList = [
-  _Conn.name(
-      'postgres://unicorn_user:magical_password@172.18.31.1:5432/tokopedia-recharge?sslmode=disable'),
-  _Conn.name(
-      'mysql://unicorn_user:magical_password@172.18.31.1:3366/tokopedia-recharge?sslmode=disable'),
-  _Conn.name('postgres://172.18.31.1:5432/tokopedia-recharge?sslmode=disable'),
-  _Conn.name('//172.18.31.1:5432/tokopedia-recharge?sslmode=disable'),
-];
+class DBConnInfoListTile extends StatelessWidget {
+  final DBConnInfoViewObject? conn;
+  final Function() select;
+  final Function() delete;
 
-extension _IconGenerator on _Conn {
+  const DBConnInfoListTile(
+      {Key? key,
+      required this.conn,
+      required this.select,
+      required this.delete})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> buttons = List.empty();
+    if (conn?.selected ?? false) {
+      buttons = [
+        IconButton(
+          onPressed: () => Get.toNamed('/db/edit', arguments: conn),
+          icon: const Icon(Icons.edit),
+        ),
+        IconButton(
+          onPressed: delete,
+          icon: const Icon(Icons.delete),
+        ),
+      ];
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Card(
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.blueGrey.shade900,
+            child: Center(child: Icon(conn.icon)),
+          ),
+          title: Text(conn.title),
+          subtitle: Text(conn.subtitle),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: buttons,
+          ),
+          onTap: () => Get.to(Query(), arguments: conn),
+          onLongPress: select,
+        ),
+      ),
+    );
+  }
+}
+
+extension _ListTile on DBConnInfoViewObject? {
   IconData get icon {
-    switch (url.scheme) {
+    if (this == null) {
+      return Icons.question_answer;
+    }
+    switch (this?.url.scheme) {
       case 'postgres':
         return Mfizz.postgres;
       case 'mysql':
@@ -34,53 +103,5 @@ extension _IconGenerator on _Conn {
       default:
         return Icons.question_answer;
     }
-  }
-
-  String get title {
-    var username = url.userInfo.split(":")[0];
-    return username + '@' + url.host;
-  }
-
-  String get subtitle {
-    return url.path;
-  }
-}
-
-class _Controller extends GetxController {}
-
-class MainList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Title'),
-      ),
-      body: ListView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          var c = connList[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Card(
-              child: ListTile(
-                //leading: Icon(c.icon, size: 48, color: Colors.blueGrey),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blueGrey.shade900,
-                  child: Center(child: Icon(c.icon)),
-                ),
-                title: Text(c.title),
-                subtitle: Text(c.subtitle),
-                onTap: () {
-                  Get.to(Query());
-                },
-                onLongPress: () {
-                  Get.to(EditDB());
-                },
-              ),
-            ),
-          );
-        },
-        itemCount: connList.length,
-      ),
-    );
   }
 }
