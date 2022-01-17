@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   get: any
   postgres: ^2.4.3
+  mysql1: ^0.19.2
   uuid: ^3.0.5
   sqflite: ^2.0.2
   sqflite_common_ffi: ^2.1.0+1

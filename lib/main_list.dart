@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'database/db_conn.dart';
-import 'edit_db.dart';
 import 'main_controller.dart';
-import 'query.dart';
 import 'mfizz_icon.dart';
 
 class MainList extends GetView<MainController> {
@@ -82,7 +79,7 @@ class DBConnInfoListTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: buttons,
           ),
-          onTap: () => Get.to(Query(), arguments: conn),
+          onTap: () => Get.toNamed('/query', arguments: conn),
           onLongPress: select,
         ),
       ),

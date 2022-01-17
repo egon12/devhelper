@@ -12,11 +12,23 @@ extension RowDataExtension on RowData {
 
 typedef RowsData = List<RowData>;
 
+class TableData {
+  final RowsData data;
+  final Iterable<ColumnInfo> columns;
+
+  TableData(this.data, this.columns);
+
+  factory TableData.empty() => TableData(List.empty(), List.empty());
+}
+
 class ColumnInfo {
   ColumnInfo(this.id, this.label,
-      {this.isPrimaryKey = false, this.sort = Sort.none, this.align = Align.left });
+      {this.isPrimaryKey = false,
+      this.sort = Sort.none,
+      this.align = Align.left});
 
-  ColumnInfo.withId(String id, {sort = Sort.none, align = Align.left} ) : this(id, id.capitalize(), sort: sort, align: align);
+  ColumnInfo.withId(String id, {sort = Sort.none, align = Align.left})
+      : this(id, id.capitalize(), sort: sort, align: align);
 
   final String id;
   final String label;
@@ -29,7 +41,7 @@ enum Sort { none, asc, desc }
 
 enum Align { left, center, right }
 
-typedef ColumnsInfo = List<ColumnInfo>;
+typedef ColumnsInfo = Iterable<ColumnInfo>;
 
 extension ColumnsInfoExtension on ColumnsInfo {
   String getId(Map<String, Object?> row) => firstWhere(

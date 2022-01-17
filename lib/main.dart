@@ -1,4 +1,5 @@
 import 'package:devhelper/edit_db.dart';
+import 'package:devhelper/query.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'storage/db.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
       initialBinding: mainBinding,
       getPages: [
         EditDBGetPage,
+        GetPage(name: '/query', page: () => Query(), binding: QueryBinding())
       ],
     );
   }

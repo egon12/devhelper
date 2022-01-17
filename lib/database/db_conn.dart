@@ -6,10 +6,10 @@ part 'db_conn.g.dart';
 
 @JsonSerializable()
 class DBConnInfo {
-  Uri url;
   final String uuid;
+  Uri url;
 
-  DBConnInfo({required this.url, required this.uuid});
+  DBConnInfo({required this.uuid, required this.url});
 
   String get urlString => url.toString();
 

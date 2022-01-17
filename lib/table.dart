@@ -1,198 +1,40 @@
 import 'package:flutter/material.dart' hide Align;
-import 'package:devhelper/database/column_info.dart';
+import 'package:get/get.dart';
 
-class DBTable extends StatefulWidget {
+import 'database/column_info.dart';
+import 'database/real_db_conn.dart';
+
+class DBTableController extends GetxController {
   @override
-  State<StatefulWidget> createState() {
-    return DBTableState();
+  void onInit() {
+    super.onInit();
+    _fillData();
   }
 
-  var columns = ['id', 'name', 'age', 'last_seen'];
+  void _fillData() {
+    DBConnItf conn = Get.arguments[0];
+    String query = Get.arguments[1];
 
-  var cols = [
-    ColumnInfo('id', 'ID', isPrimaryKey: true, sort: Sort.asc, align: Align.right),
-    ColumnInfo.withId('name'),
-    ColumnInfo.withId('age', align: Align.right),
-    ColumnInfo.withId('another'),
-    ColumnInfo('last_seen', 'Last Seen', align: Align.center),
-  ];
+    data.append(() => () => conn.query(query));
+  }
 
-  RowsData data = [
-    {
-      'id': 1,
-      'name': 'Richolas',
-      'age': 300,
-      'another': 'another',
-      'last_seen': DateTime.parse('2021-12-01T00:00:00Z')
-    },
-    {
-      'id': 2,
-      'name': 'Alfredo',
-      'age': 177,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 3,
-      'name': 'Alfredo 2',
-      'age': 98,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 14,
-      'name': 'The name fom someone',
-      'age': 98,
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 1,
-      'name': 'Richolas',
-      'age': 300,
-      'another': 'another',
-      'last_seen': DateTime.parse('2021-12-01T00:00:00Z')
-    },
-    {
-      'id': 2,
-      'name': 'Alfredo',
-      'age': 177,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 3,
-      'name': 'Alfredo 2',
-      'age': 98,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 14,
-      'name': 'The name fom someone',
-      'age': 98,
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 1,
-      'name': 'Richolas',
-      'age': 300,
-      'another': 'another',
-      'last_seen': DateTime.parse('2021-12-01T00:00:00Z')
-    },
-    {
-      'id': 2,
-      'name': 'Alfredo',
-      'age': 177,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 3,
-      'name': 'Alfredo 2',
-      'age': 98,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 14,
-      'name': 'The name fom someone',
-      'age': 98,
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 1,
-      'name': 'Richolas',
-      'age': 300,
-      'another': 'another',
-      'last_seen': DateTime.parse('2021-12-01T00:00:00Z')
-    },
-    {
-      'id': 2,
-      'name': 'Alfredo',
-      'age': 177,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 3,
-      'name': 'Alfredo 2',
-      'age': 98,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 14,
-      'name': 'The name fom someone',
-      'age': 98,
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 1,
-      'name': 'Richolas',
-      'age': 300,
-      'another': 'another',
-      'last_seen': DateTime.parse('2021-12-01T00:00:00Z')
-    },
-    {
-      'id': 2,
-      'name': 'Alfredo',
-      'age': 177,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 3,
-      'name': 'Alfredo 2',
-      'age': 98,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 14,
-      'name': 'The name fom someone',
-      'age': 98,
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 1,
-      'name': 'Richolas',
-      'age': 300,
-      'another': 'another',
-      'last_seen': DateTime.parse('2021-12-01T00:00:00Z')
-    },
-    {
-      'id': 2,
-      'name': 'Alfredo',
-      'age': 177,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 3,
-      'name': 'Alfredo 2',
-      'age': 98,
-      'another': 'another',
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-    {
-      'id': 14,
-      'name': 'The name fom someone',
-      'age': 98,
-      'last_seen': DateTime.parse('2020-12-01T00:00:00Z')
-    },
-  ];
+  Value<TableData?> data = Value(null);
 }
 
-class DBTableState extends State<DBTable> {
+class DBTable extends StatelessWidget {
+  DBTable({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    DBTableController controller = Get.put(DBTableController());
+
     return Scaffold(
         appBar: AppBar(title: const Text('Table tr_transactions_1')),
         //body: _table(widget.data, widget.cols),
-        body: TableInListView(
-          data: widget.data,
-          colsInfo: widget.cols,
-        ));
+        body: controller.data.obx((data) => TableInListView(
+              data: data?.data ?? List.empty(),
+              colsInfo: data?.columns ?? List.empty(),
+            )));
   }
 }
 
@@ -211,7 +53,6 @@ class TableInListView extends StatefulWidget {
 }
 
 class TableInListViewState extends State<TableInListView> {
-
   Map<String, double> colsWidth = {};
 
   Widget itemBuilder(BuildContext ctx, int index) {
@@ -225,7 +66,6 @@ class TableInListViewState extends State<TableInListView> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     var width = calculateWidth();
@@ -233,20 +73,16 @@ class TableInListViewState extends State<TableInListView> {
     return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Container(
-            width: width, 
-            child: Column(
-                children: [
-                  header(),
-                  Expanded(
-                      child: ListView.builder(
-                          itemBuilder: itemBuilder,
-                          itemCount: widget.data.length,
-                      ),
-                  ),
-                ]
-            )
-        )
-    );
+            width: width,
+            child: Column(children: [
+              header(),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: itemBuilder,
+                  itemCount: widget.data.length,
+                ),
+              ),
+            ])));
   }
 
   Widget header() {
@@ -264,12 +100,10 @@ class TableInListViewState extends State<TableInListView> {
         child: Padding(
           padding: const EdgeInsets.all(8),
           child: Text(
-              c.label, 
-              textAlign: c.getTextAlign(),
-              maxLines: 1,
-              style: const TextStyle( 
-                  fontWeight: FontWeight.bold 
-              ),
+            c.label,
+            textAlign: c.getTextAlign(),
+            maxLines: 1,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
       ),
@@ -286,17 +120,17 @@ class TableInListViewState extends State<TableInListView> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(8),
-            child: Text(
-                row.getStringValue(c), 
-                textAlign: c.getTextAlign(),
-                maxLines: 1,
-                ),
+          child: Text(
+            row.getStringValue(c),
+            textAlign: c.getTextAlign(),
+            maxLines: 1,
+          ),
         ),
       ),
     );
   }
 
-  double? getColsWidth(ColumnInfo c)  => colsWidth[c.id];
+  double? getColsWidth(ColumnInfo c) => colsWidth[c.id];
 
   var tp = TextPainter(
     textDirection: TextDirection.ltr,
@@ -343,7 +177,7 @@ extension ColumnsInfoKey on ColumnsInfo {
 
 extension TextAlingExtension on ColumnInfo {
   TextAlign getTextAlign() {
-    switch(align) {
+    switch (align) {
       case Align.left:
         return TextAlign.left;
       case Align.center:

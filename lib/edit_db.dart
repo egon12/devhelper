@@ -1,5 +1,6 @@
 import 'package:devhelper/database/db_conn.dart';
 import 'package:devhelper/database/db_conn_repo.dart';
+import 'package:devhelper/database/real_db_conn.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'mfizz_icon.dart';
@@ -95,6 +96,21 @@ class EditDBController extends GetxController {
     var conn = arguments ?? DBConnInfo.url(url.toString())
       ..url = url;
     await _repo.save(conn);
+    Get.back(result: conn);
+  }
+
+  Future<void> test() async {
+    try {
+      var url = getUri();
+      var result = await DBConnItf.testURL(url);
+      if (result) {
+        Get.snackbar('Success', 'Can connected to db');
+      } else {
+        Get.snackbar('Failed', 'Can\'t connected to db');
+      }
+    } catch (e) {
+      Get.snackbar('Failed', e.toString());
+    }
   }
 
   String _getUserInfo() {
@@ -195,7 +211,7 @@ class EditDB extends GetView<EditDBController> {
                     ButtonBar(children: [
                       TextButton(
                         child: const Text('Test'),
-                        onPressed: () {},
+                        onPressed: controller.test,
                       ),
                       ElevatedButton(
                         child: const Text('Save'),
