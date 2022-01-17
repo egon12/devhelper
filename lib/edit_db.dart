@@ -1,6 +1,7 @@
 import 'package:devhelper/database/db_conn.dart';
 import 'package:devhelper/database/db_conn_repo.dart';
 import 'package:devhelper/database/real_db_conn.dart';
+import 'package:devhelper/string_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'mfizz_icon.dart';
@@ -23,36 +24,7 @@ class EditDBController extends GetxController {
 
   final DBConnInfoRepo _repo = Get.find();
 
-  @override
-  void onInit() {
-    super.onInit();
-    _fillWithArguments();
-  }
-
-  void _fillWithArguments() {
-    var arg = arguments;
-    if (arg == null) {
-      return;
-    }
-    switch (arg.url.scheme) {
-      case 'postgres':
-        dbtypesToggle[0] = true;
-        break;
-      case 'mysql':
-        dbtypesToggle[1] = true;
-        break;
-      default:
-    }
-    var userInfos = arg.url.userInfo.split(':');
-    var username = userInfos[0];
-    var password = userInfos.length > 1 ? userInfos[1] : '';
-
-    getTextController('username').text = username;
-    getTextController('password').text = password;
-    getTextController('host').text = arg.url.host;
-    getTextController('port').text = arg.url.port.toString();
-    getTextController('database').text = arg.url.path;
-  }
+  List<bool> dbtypesToggle = [false, false].obs;
 
   final Map<String, TextEditingController> _textControllerMap = {
     "username": TextEditingController(),
@@ -62,46 +34,32 @@ class EditDBController extends GetxController {
     "database": TextEditingController(),
   };
 
-  final Map<String, String> _value = {
-    "dbtype": 'postgres',
-    "username": '',
-    "password": '',
-    "host": '',
-    "port": '',
-    "database": '',
-  };
+  var connStringController = TextEditingController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _fillWithArguments();
+  }
 
   getTextController(name) {
     return _textControllerMap[name];
   }
 
-  List<bool> dbtypesToggle = [false, false].obs;
-
-  Uri getUri() {
-    _textControllerMap.forEach((name, tc) {
-      _value[name] = tc.text;
-    });
-
-    return Uri(
-      scheme: _value['dbtype'],
-      userInfo: _getUserInfo(),
-      host: _value['host'],
-      port: int.parse(_value['port'] ?? ''),
-      path: _value['database'],
-    );
+  void selectDbType(int index) {
+    for (var i = 0; i < dbtypesToggle.length; i++) {
+      dbtypesToggle[i] = i == index;
+    }
   }
 
-  Future<void> save() async {
-    var url = getUri();
-    var conn = arguments ?? DBConnInfo.url(url.toString())
-      ..url = url;
-    await _repo.save(conn);
-    Get.back(result: conn);
+  void extract() {
+    var url = extractDbUrl(emailtext: connStringController.text);
+    _fillWithUrl(url);
   }
 
   Future<void> test() async {
     try {
-      var url = getUri();
+      var url = _getUrl();
       var result = await DBConnItf.testURL(url);
       if (result) {
         Get.snackbar('Success', 'Can connected to db');
@@ -113,29 +71,88 @@ class EditDBController extends GetxController {
     }
   }
 
+  Future<void> save() async {
+    try {
+      var url = _getUrl();
+      var conn = arguments ?? DBConnInfo.url(url.toString())
+        ..url = url;
+      await _repo.save(conn);
+      Get.back(result: conn);
+    } catch (e) {
+      Get.snackbar('Failed', e.toString());
+    }
+  }
+
+  Uri _getUrl() {
+    return Uri(
+      scheme: _getDBType(),
+      userInfo: _getUserInfo(),
+      host: _getText('host'),
+      port: _getPort(),
+      path: _getText('database'),
+    );
+  }
+
+  String _getText(name) {
+    return getTextController(name).text;
+  }
+
+  int? _getPort() {
+    var port = _getText('port');
+    if (port.isEmpty) return null;
+    return int.parse(port);
+  }
+
+  void _fillWithArguments() {
+    var arg = arguments;
+    if (arg == null) {
+      return;
+    }
+
+    _fillWithUrl(arg.url);
+  }
+
+  void _fillWithUrl(Uri url) {
+    _setDBType(url.scheme);
+    _setText('username', url.username);
+    _setText('password', url.password);
+    _setText('host', url.host);
+    _setText('port', url.port.toString());
+    _setText('database', url.path);
+  }
+
+  void _setText(String name, String value) {
+    getTextController(name).text = value;
+  }
+
+  void _setDBType(dbname) {
+    switch (dbname) {
+      case 'postgres':
+        dbtypesToggle[0] = true;
+        break;
+      case 'mysql':
+        dbtypesToggle[1] = true;
+        break;
+      default:
+    }
+  }
+
   String _getUserInfo() {
-    if (_value['password']?.isEmpty ?? false) {
-      return _value['username'] ?? '';
+    var pwd = _getText(password);
+    if (pwd.isEmpty) {
+      return _getText('username');
     }
 
-    return (_value['username'] ?? '') + ':' + _value['password']!;
+    return _getText('username') + ':' + pwd;
   }
 
-  void selectDbType(int index) {
-    for (var i = 0; i < dbtypesToggle.length; i++) {
-      if (i == index) {
-        dbtypesToggle[i] = true;
-      } else {
-        dbtypesToggle[i] = false;
-      }
-    }
-
-    if (index == 0) {
-      _value['dbtype'] = 'postgres';
-    } else if (index == 1) {
-      _value['dbtype'] = 'mysql';
-    }
+  String _getDBType() {
+    if (dbtypesToggle[0]) return 'postgres';
+    if (dbtypesToggle[1]) return 'mysql';
+    throw Exception('Please select DBType');
   }
+
+  static const password = 'password';
 }
 
 class EditDB extends GetView<EditDBController> {
@@ -161,14 +178,17 @@ class EditDB extends GetView<EditDBController> {
                         labelText: 'DB Conn',
                         border: OutlineInputBorder(),
                       ),
+                      controller: controller.connStringController,
                       maxLines: 4,
                       minLines: 2,
                       textInputAction: TextInputAction.next,
                     ),
-                    TextButton(
-                      child: const Text('Extract'),
-                      onPressed: () {},
-                    )
+                    ButtonBar(children: [
+                      ElevatedButton(
+                        child: const Text('Extract'),
+                        onPressed: controller.extract,
+                      ),
+                    ]),
                   ],
                 ),
               ),
@@ -265,4 +285,28 @@ class EditTextField extends GetView<EditDBController> {
       ),
     );
   }
+}
+
+Uri extractDbUrl({String emailtext = ''}) {
+  var usernameRE =
+      RegExp('username[\\W:]+([\\w-]+)', caseSensitive: false, multiLine: true);
+  var passwordRE = RegExp('password:[\\W:]+([\\w-]+)',
+      caseSensitive: false, multiLine: true);
+  var hostRE =
+      RegExp('ip[\\W:]+([\\w-\\.]+)', caseSensitive: false, multiLine: true);
+  var databaseRE =
+      RegExp('database[\\W:]+([\\w-]+)', caseSensitive: false, multiLine: true);
+
+  var hostM = hostRE.firstMatch(emailtext);
+  var databaseM = databaseRE.firstMatch(emailtext);
+  var usernameM = usernameRE.firstMatch(emailtext);
+  var passwordM = passwordRE.firstMatch(emailtext);
+
+  var pwd = passwordM != null ? ':' + passwordM.group(1)! : '';
+
+  return Uri(
+    userInfo: (usernameM?.group(1) ?? '') + pwd,
+    host: hostM?.group(1),
+    path: databaseM?.group(1),
+  );
 }
