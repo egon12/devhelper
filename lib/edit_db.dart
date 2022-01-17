@@ -50,6 +50,7 @@ class EditDBController extends GetxController {
     for (var i = 0; i < dbtypesToggle.length; i++) {
       dbtypesToggle[i] = i == index;
     }
+    update();
   }
 
   void extract() {
@@ -199,30 +200,32 @@ class EditDB extends GetView<EditDBController> {
                 autovalidateMode: AutovalidateMode.always,
                 child: Column(
                   children: [
-                    Obx(() => ToggleButtons(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Row(
-                                children: const [
-                                  Icon(Mfizz.postgres),
-                                  Text("PostgreSQL"),
-                                ],
-                              ),
+                    GetBuilder<EditDBController>(
+                      builder: (ctrl) => ToggleButtons(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Row(
+                              children: const [
+                                Icon(Mfizz.postgres),
+                                Text("PostgreSQL"),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Row(
-                                children: const [
-                                  Icon(Mfizz.mysqlAlt),
-                                  Text("MySQL"),
-                                ],
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Row(
+                              children: const [
+                                Icon(Mfizz.mysqlAlt),
+                                Text("MySQL"),
+                              ],
                             ),
-                          ],
-                          onPressed: controller.selectDbType,
-                          isSelected: controller.dbtypesToggle,
-                        )),
+                          ),
+                        ],
+                        onPressed: (i) => ctrl.selectDbType(i),
+                        isSelected: ctrl.dbtypesToggle,
+                      ),
+                    ),
                     const EditTextField("username"),
                     const EditTextField("password"),
                     const EditTextField("host"),
