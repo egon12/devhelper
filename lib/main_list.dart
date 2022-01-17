@@ -10,14 +10,11 @@ class MainList extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projects'),
-      ),
+      appBar: AppBar( title: const Text('Projects'),),
       body: controller.rx.obx(
         (state) => ListView.builder(
           itemBuilder: (BuildContext context, int index) {
             var conn = state?[index];
-
             return DBConnInfoListTile(
               conn: conn,
               select: () => controller.select(conn),
@@ -28,10 +25,8 @@ class MainList extends GetView<MainController> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.toNamed('db/edit');
-        },
         child: const Icon(Icons.add),
+        onPressed: () => controller.edit(),
       ),
     );
   }
@@ -51,11 +46,13 @@ class DBConnInfoListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MainController controller = Get.find();
+
     List<Widget> buttons = List.empty();
     if (conn?.selected ?? false) {
       buttons = [
         IconButton(
-          onPressed: () => Get.toNamed('/db/edit', arguments: conn),
+          onPressed: () => controller.edit(conn),
           icon: const Icon(Icons.edit),
         ),
         IconButton(
@@ -65,24 +62,23 @@ class DBConnInfoListTile extends StatelessWidget {
       ];
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Card(
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.blueGrey.shade900,
-            child: Center(child: Icon(conn.icon)),
-          ),
-          title: Text(conn.title),
-          subtitle: Text(conn.subtitle),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: buttons,
-          ),
-          onTap: () => Get.toNamed('/query', arguments: conn),
-          onLongPress: select,
-        ),
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Colors.blueGrey.shade900,
+        child: Center(child: Icon(conn.icon)),
       ),
+      title: Text(
+        conn.title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(conn.subtitle),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: buttons,
+      ),
+      onTap: () => Get.toNamed('/query', arguments: conn), 
+      onLongPress: select,
     );
   }
 }

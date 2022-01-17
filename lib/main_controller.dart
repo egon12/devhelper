@@ -26,11 +26,12 @@ class MainController extends GetxController {
         .toList();
   }
 
-  void delete(DBConnInfo? conn) {
+  void delete(DBConnInfo? conn) async {
     if (conn == null) {
       return;
     }
-    _repo.delete(conn.uuid);
+    await _repo.delete(conn.uuid);
+    rx.append(() => _loadAll);
   }
 
   select(DBConnInfoViewObject? conn) {
@@ -41,6 +42,11 @@ class MainController extends GetxController {
       c.selected = c.uuid == conn.uuid;
       return c;
     }).toList();
+  }
+
+  edit([DBConnInfo? conn]) async {
+    await Get.toNamed('db/edit', arguments: conn);
+    rx.append(() => _loadAll);
   }
 }
 
