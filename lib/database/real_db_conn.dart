@@ -10,7 +10,10 @@ abstract class DBConnItf {
   Future<TableData> query(String query);
   Future<List<String>> get tables;
 
-  static Future<bool> testURL(Uri url) async {
+  static Future<bool> testURL(Uri url) =>
+      _testURL(url).timeout(const Duration(seconds: 5));
+
+  static Future<bool> _testURL(Uri url) async {
     switch (url.scheme) {
       case 'postgres':
         return PostgresDBConn().test(url);
@@ -113,6 +116,5 @@ class MysqlDBConn extends GetxService implements DBConnItf {
   }
 
   @override
-  // TODO: implement tables
   Future<List<String>> get tables => throw UnimplementedError();
 }
