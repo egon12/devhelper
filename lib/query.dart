@@ -3,6 +3,7 @@ import 'package:devhelper/database/real_db_conn.dart';
 import 'package:devhelper/table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sqlparser/sqlparser.dart' show Token, SqlEngine, TokenType;
 
 import 'table_list.dart';
 
@@ -26,11 +27,11 @@ class QueryController extends GetxController {
   void onInit() {
     super.onInit();
     _connectDB();
+    textFocus.requestFocus();
   }
 
   void _connectDB() async {
-    conn = PostgresDBConn();
-    await conn.connect(connInfo.url);
+    conn = await DBConnItf.connectTo(connInfo.url);
   }
 
   @override
@@ -39,39 +40,54 @@ class QueryController extends GetxController {
     super.onClose();
   }
 
-  void addSelect() {
-    textCtrl.text += 'SELECT * FROM ';
+  void _insert(String word) {
+    var text = textCtrl.text;
+    var sel = textCtrl.selection;
+    textCtrl.value = TextEditingValue(
+      text: sel.textBefore(text) + word + sel.textAfter(text),
+      selection: TextSelection.collapsed(offset: sel.start + word.length),
+    );
     textFocus.requestFocus();
+  }
+
+  void addSelect() {
+    _insert('SELECT * FROM ');
   }
 
   void addInsert() {
-    textCtrl.text += 'INSERT INTO ';
-    textFocus.requestFocus();
+    _insert('INSERT INTO ');
   }
 
   void addUpdate() {
-    textCtrl.text += 'UPDATE';
-    textFocus.requestFocus();
+    _insert('UPDATE ');
   }
 
   void selectTable() async {
-    var tableName = await Get.to(() => TableList(), arguments: conn);
-    textCtrl.text += tableName;
+    var tableName = await Get.to(() => const TableList(), arguments: conn);
+    _insert(tableName);
   }
 
   void execute() {
+    var sel = textCtrl.selection;
+    var text = textCtrl.text;
+    if (!sel.isCollapsed) {
+      Get.to(() => DBTable(), arguments: [conn, sel.textInside(text)]);
+      return;
+    }
+
     //Get.toNamed('query/result', arguments: [conn, textCtrl.text]);
-    Get.to(() => DBTable(), arguments: [conn, textCtrl.text]);
+    var query = getQuery(textCtrl.value);
+    Get.to(() => DBTable(), arguments: [conn, query]);
   }
 }
 
 class Query extends GetView<QueryController> {
-  Query({Key? key}) : super(key: key);
+  const Query({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('MyDB local')),
+      appBar: AppBar(title: Text(controller.connInfo.title)),
       body: SafeArea(
         child: Column(
           children: [
@@ -111,4 +127,46 @@ class Query extends GetView<QueryController> {
       ),
     );
   }
+}
+
+typedef StatementTokens = List<Token>;
+
+extension StatementTokensPosition on StatementTokens {
+  int get start {
+    if (isEmpty) return 0;
+    return first.firstPosition;
+  }
+
+  int get end {
+    if (isEmpty) return 0;
+    return last.lastPosition;
+  }
+
+  bool inside(int offset) => start <= offset && offset <= end;
+}
+
+String getQuery(TextEditingValue val) {
+  var text = val.text;
+  var sel = val.selection;
+  var engine = SqlEngine();
+  var tokens = engine.tokenize(text);
+
+  var statements = List<StatementTokens>.empty(growable: true);
+  StatementTokens statement = List<Token>.empty(growable: true);
+  for (var i = 0; i < tokens.length; i++) {
+    var token = tokens[i];
+    statement.add(token);
+    if (token.type == TokenType.semicolon || token.type == TokenType.eof) {
+      statements.add(statement);
+      statement = List<Token>.empty(growable: true);
+    }
+  }
+
+  for (var i = 0; i < statements.length; i++) {
+    var stmt = statements[i];
+    if (stmt.inside(sel.start)) {
+      return text.substring(stmt.start, stmt.end);
+    }
+  }
+  return '';
 }

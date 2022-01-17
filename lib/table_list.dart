@@ -32,6 +32,15 @@ class TableListController extends GetxController {
     }
     tables.value = _all.where((name) => name.contains(text)).toList();
   }
+
+  void done() {
+    var val = tables.value?[0] ?? '';
+    if (val.isEmpty) {
+      Get.snackbar('Error', 'None tables to select!');
+      return;
+    }
+    Get.back(result: val);
+  }
 }
 
 class TableList extends StatelessWidget {
@@ -61,7 +70,9 @@ class TableList extends StatelessWidget {
             suffixIcon: Icon(Icons.search),
           ),
           controller: controller.search,
+          textInputAction: TextInputAction.done,
           onChanged: controller.onSearchChanged,
+          onSubmitted: (val) => controller.done(),
         )
       ]),
     );

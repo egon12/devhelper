@@ -35,3 +35,15 @@ class DBConnInfo {
 
   Map<String, dynamic> toMap() => _$DBConnInfoToJson(this);
 }
+
+extension DBConnInfoDisplay on DBConnInfo? {
+  String get title {
+    var username = this?.url.userInfo.split(":")[0] ?? '';
+    var host = this?.url.host ?? 'NULL HOST';
+    return username + '@' + host;
+  }
+
+  String get subtitle {
+    return this?.url.path ?? '';
+  }
+}
