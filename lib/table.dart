@@ -137,9 +137,6 @@ class TableInListViewState extends State<TableInListView> {
   );
 
   double calculateWidth() {
-    var tp = TextPainter();
-    Map<String, num> colWidth = {};
-
     double w = 0;
 
     for (var ci in widget.colsInfo) {
@@ -154,7 +151,13 @@ class TableInListViewState extends State<TableInListView> {
       return colsWidth[ci.id]!;
     }
 
-    double w = 0;
+    // count column first
+    tp.text = TextSpan(
+      text: ci.label,
+      style: const TextStyle(fontWeight: FontWeight.bold),
+    );
+    tp.layout();
+    double w = tp.size.width;
 
     for (var item in widget.data) {
       var val = item[ci.id].toString();
