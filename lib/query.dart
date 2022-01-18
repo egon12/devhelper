@@ -3,13 +3,17 @@ import 'package:devhelper/database/real_db_conn.dart';
 import 'package:devhelper/table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sqflite/sqflite.dart' hide Column;
 import 'package:sqlparser/sqlparser.dart' show Token, SqlEngine, TokenType;
 
+import 'database/query_repo.dart';
 import 'table_list.dart';
 
 class QueryBinding extends Bindings {
   @override
   void dependencies() {
+    Database db = Get.find();
+    Get.lazyPut(() => QueryRepo(db: db));
     Get.lazyPut(() => QueryController());
   }
 }
@@ -22,22 +26,30 @@ class QueryController extends GetxController {
   late DBConnItf conn;
 
   DBConnInfo connInfo = Get.arguments;
+  QueryRepo _repo = Get.find();
 
   @override
   void onInit() {
     super.onInit();
     _connectDB();
-    textFocus.requestFocus();
+    _fillText();
+  }
+
+  @override
+  void onClose() {
+    textFocus.dispose();
+    _repo.save(connInfo.uuid, textCtrl.text);
+    super.onClose();
   }
 
   void _connectDB() async {
     conn = await DBConnItf.connectTo(connInfo.url);
   }
 
-  @override
-  void onClose() {
-    textFocus.dispose();
-    super.onClose();
+  Future<void> _fillText() async {
+    var query = await _repo.get(connInfo.uuid);
+    textCtrl.text = query;
+    textFocus.requestFocus();
   }
 
   void _insert(String word) {

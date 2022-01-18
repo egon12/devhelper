@@ -11,11 +11,13 @@ class DBTableController extends GetxController {
     _fillData();
   }
 
+  var query = ''.obs;
+
   void _fillData() {
     DBConnItf conn = Get.arguments[0];
-    String query = Get.arguments[1];
+    query.value = Get.arguments[1];
 
-    data.append(() => () => conn.query(query));
+    data.append(() => () => conn.query(query.value));
   }
 
   Value<TableData?> data = Value(null);
@@ -29,8 +31,11 @@ class DBTable extends StatelessWidget {
     DBTableController controller = Get.put(DBTableController());
 
     return Scaffold(
-        appBar: AppBar(title: const Text('Table tr_transactions_1')),
-        //body: _table(widget.data, widget.cols),
+        appBar: AppBar(
+            title: Obx(() => Text(
+                  controller.query.value,
+                  maxLines: 1,
+                ))),
         body: controller.data.obx((data) => TableInListView(
               data: data?.data ?? List.empty(),
               colsInfo: data?.columns ?? List.empty(),

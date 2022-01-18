@@ -9,8 +9,8 @@ class MainBinding extends Bindings {
 
   @override
   void dependencies() {
-    Get.put(db);
-    Get.lazyPut(() => DBConnInfoRepo(db: db!));
+    Database db = Get.find();
+    Get.lazyPut(() => DBConnInfoRepo(db: db));
     Get.lazyPut(() => MainController());
     Get.lazyPut(() => EditDBController());
   }

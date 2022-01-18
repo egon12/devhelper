@@ -291,6 +291,12 @@ class EditTextField extends GetView<EditDBController> {
 }
 
 Uri extractDbUrl({String emailtext = ''}) {
+  var postgreRE = RegExp('postgres://[^\\s]+');
+  if (postgreRE.hasMatch(emailtext)) {
+    var m = postgreRE.firstMatch(emailtext);
+    return Uri.parse(m!.group(0)!);
+  }
+
   var usernameRE =
       RegExp('username[\\W:]+([\\w-]+)', caseSensitive: false, multiLine: true);
   var passwordRE = RegExp('password:[\\W:]+([\\w-]+)',

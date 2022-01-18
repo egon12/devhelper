@@ -9,8 +9,9 @@ import 'main_binding.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  var db = await getDB();
+  Get.put(db);
   MainBinding mainBinding = MainBinding();
-  mainBinding.db = await getDB();
 
   runApp(
     MyApp(mainBinding: mainBinding),
