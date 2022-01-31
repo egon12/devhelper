@@ -73,6 +73,7 @@ class TableList extends StatelessWidget {
           textInputAction: TextInputAction.done,
           onChanged: controller.onSearchChanged,
           onSubmitted: (val) => controller.done(),
+          autofocus: true,
         )
       ]),
     );
