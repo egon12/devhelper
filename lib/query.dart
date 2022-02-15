@@ -26,7 +26,7 @@ class QueryController extends GetxController {
   late DBConnItf conn;
 
   DBConnInfo connInfo = Get.arguments;
-  QueryRepo _repo = Get.find();
+  final QueryRepo _repo = Get.find();
 
   @override
   void onInit() {
@@ -36,9 +36,9 @@ class QueryController extends GetxController {
   }
 
   @override
-  void onClose() {
+  void onClose() async {
     textFocus.dispose();
-    _repo.save(connInfo.uuid, textCtrl.text);
+    await _repo.save(connInfo.uuid, textCtrl.text);
     super.onClose();
   }
 

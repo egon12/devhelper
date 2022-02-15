@@ -10,7 +10,6 @@ Future<Database> getDB() {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    databaseFactory.getDatabasesPath().then((i) => print(i));
     return databaseFactory.openDatabase(
       'projects.db',
       options: OpenDatabaseOptions(
@@ -31,10 +30,15 @@ Future<Database> getDB() {
   );
 }
 
-void onCreate(Database db, int version) {
+void onCreate(Database db, int version) async {
   var batch = db.batch();
+
   batch.execute(DBConnInfoRepo.createQuery);
   batch.execute(DBConnInfoRepo.initialDataQuery);
+
+  batch.execute(QueryRepo.createQuery);
+  batch.execute(QueryRepo.initialDataQuery);
+
   batch.commit();
 }
 
