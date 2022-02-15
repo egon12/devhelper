@@ -10,7 +10,11 @@ class MainList extends GetView<MainController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( title: const Text('Projects'),),
+      appBar: AppBar(
+        leading: const Image(image: AssetImage('images/app_logo_512.webp')),
+        backgroundColor: const Color(0xff275379),
+        title: const Text('DH SQL Client'),
+      ),
       body: controller.rx.obx(
         (state) => ListView.builder(
           itemBuilder: (BuildContext context, int index) {
