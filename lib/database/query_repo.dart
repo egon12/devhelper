@@ -10,7 +10,7 @@ class QueryRepo extends GetxService {
 
   final _whereOne = 'uuid = ?';
 
-  final _upsertQuery = "INSERT INTO queries (uuid, query) VALUES(?, ?) " +
+  final _upsertQuery = "INSERT INTO queries (uuid, query) VALUES(?, ?) " 
       "ON CONFLICT(uuid) DO UPDATE SET query=excluded.query";
 
   QueryRepo({required this.db});

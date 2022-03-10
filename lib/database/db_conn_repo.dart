@@ -12,7 +12,7 @@ class DBConnInfoRepo extends GetxService {
 
   final _whereOne = 'uuid = ?';
 
-  final _upsertQuery = "INSERT INTO db_conn_info (uuid, url) VALUES(?, ?) " +
+  final _upsertQuery = "INSERT INTO db_conn_info (uuid, url) VALUES(?, ?) " 
       "ON CONFLICT(uuid) DO UPDATE SET url=excluded.url";
 
   DBConnInfoRepo({required this.db});

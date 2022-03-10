@@ -164,7 +164,7 @@ class EditDB extends GetView<EditDBController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Database')),
+      appBar: AppBar(title: const Text('Database')),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(children: [
