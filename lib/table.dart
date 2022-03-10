@@ -162,18 +162,18 @@ class TableInListViewState extends State<TableInListView> {
       style: const TextStyle(fontWeight: FontWeight.bold),
     );
     tp.layout();
-    double w = tp.size.width;
+    double w = tp.size.width + 24;
 
     for (var item in widget.data) {
       var val = item[ci.id].toString();
       tp.text = TextSpan(text: val);
       tp.layout();
-      if (w < tp.size.width) {
-        w = tp.size.width;
+      if (w < tp.size.width + 24) {
+        w = tp.size.width + 24;
       }
     }
 
-    colsWidth[ci.id] = w + 20;
+    colsWidth[ci.id] = w + 24;
 
     return colsWidth[ci.id]!;
   }
