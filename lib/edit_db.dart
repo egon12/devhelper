@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'mfizz_icon.dart';
 
-var EditDBGetPage = GetPage(
+var editDBGetPage = GetPage(
   name: "/db/edit",
   page: () => EditDB(),
   binding: EditDBBinding(),

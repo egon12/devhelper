@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Dev Helper',
+      title: 'DH SQL Client',
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blueGrey,
@@ -34,22 +34,9 @@ class MyApp extends StatelessWidget {
       home: const MainList(),
       initialBinding: mainBinding,
       getPages: [
-        EditDBGetPage,
-        GetPage(name: '/query', page: () => Query(), binding: QueryBinding())
+        editDBGetPage,
+		queryGetPage,
       ],
     );
   }
-
-/*
-  @override
-  Widget build(BuildContext context) {
-    return const CupertinoApp(
-      title: 'Flutter Demo',
-      theme: CupertinoThemeData(
-        primaryColor: CupertinoColors.activeBlue,
-      ),
-      home: MyHomePage(title: 'Flutter Home Page'),
-    );
-  }
-  */
 }

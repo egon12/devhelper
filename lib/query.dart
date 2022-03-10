@@ -9,6 +9,8 @@ import 'package:sqlparser/sqlparser.dart' show Token, SqlEngine, TokenType;
 import 'database/query_repo.dart';
 import 'table_list.dart';
 
+var queryGetPage = GetPage(name: '/query', page: () => const Query(), binding: QueryBinding());
+
 class QueryBinding extends Bindings {
   @override
   void dependencies() {
@@ -19,6 +21,7 @@ class QueryBinding extends Bindings {
 }
 
 class QueryController extends GetxController {
+
   TextEditingController textCtrl = TextEditingController();
 
   FocusNode textFocus = FocusNode();
