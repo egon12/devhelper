@@ -78,7 +78,7 @@ class PostgresDBConn extends GetxService implements DBConnItf {
         .map((cd) => ColumnInfo.withId(cd.columnName));
 
     RowsData? rows =
-        result?.map((row) => row.toColumnMap() as RowData).toList();
+        result?.map((row) => row.toColumnMap()).toList();
     return TableData(
       rows ?? List.empty(),
       columns ?? List.empty(),

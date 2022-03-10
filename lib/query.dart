@@ -3,6 +3,7 @@ import 'package:devhelper/database/real_db_conn.dart';
 import 'package:devhelper/table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+// ignore: undefined_hidden_name
 import 'package:sqflite/sqflite.dart' hide Column;
 import 'package:sqlparser/sqlparser.dart' show Token, SqlEngine, TokenType;
 
@@ -86,13 +87,13 @@ class QueryController extends GetxController {
     var sel = textCtrl.selection;
     var text = textCtrl.text;
     if (!sel.isCollapsed) {
-      Get.to(() => DBTable(), arguments: [conn, sel.textInside(text)]);
+      Get.to(() => const DBTable(), arguments: [conn, sel.textInside(text)]);
       return;
     }
 
     //Get.toNamed('query/result', arguments: [conn, textCtrl.text]);
     var query = getQuery(textCtrl.value);
-    Get.to(() => DBTable(), arguments: [conn, query]);
+    Get.to(() => const DBTable(), arguments: [conn, query]);
   }
 }
 

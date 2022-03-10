@@ -24,7 +24,8 @@ class DBTableController extends GetxController {
 }
 
 class DBTable extends StatelessWidget {
-  DBTable({Key? key}) : super(key: key);
+
+  const DBTable({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
