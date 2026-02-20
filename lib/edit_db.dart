@@ -24,8 +24,7 @@ class EditDBController extends GetxController {
 
   final DBConnInfoRepo _repo = Get.find();
 
-  //List<bool> dbtypesToggle = [false, false, false].obs;
-  List<bool> dbtypesToggle = [false, false].obs;
+  List<bool> dbtypesToggle = [false, false, false].obs;
 
   final Map<String, TextEditingController> _textControllerMap = {
     "username": TextEditingController(),
@@ -135,6 +134,9 @@ class EditDBController extends GetxController {
       case 'mysql':
         dbtypesToggle[1] = true;
         break;
+      case 'sqlite':
+        dbtypesToggle[2] = true;
+        break;
       default:
     }
   }
@@ -151,6 +153,7 @@ class EditDBController extends GetxController {
   String _getDBType() {
     if (dbtypesToggle[0]) return 'postgres';
     if (dbtypesToggle[1]) return 'mysql';
+    if (dbtypesToggle[2]) return 'sqlite';
     throw Exception('Please select DBType');
   }
 
@@ -212,12 +215,20 @@ class EditDB extends GetView<EditDBController> {
                         builder: (ctrl) => LayoutBuilder(
                           builder: (context, constraints) => ToggleButtons(
                             constraints: BoxConstraints.expand(
-                              //width: (constraints.maxWidth - 4) / 3,
-                              width: (constraints.maxWidth - 4) / 2,
+                              width: (constraints.maxWidth - 6) / 3,
                             ),
+                            borderWidth: 1.0,
+                            borderRadius: BorderRadius.circular(2),
+                            borderColor: Colors.grey,
+                            selectedBorderColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
                             children: const [
                               Padding(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 16,
+                                ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -227,7 +238,10 @@ class EditDB extends GetView<EditDBController> {
                                 ),
                               ),
                               Padding(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 16,
+                                ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -236,9 +250,11 @@ class EditDB extends GetView<EditDBController> {
                                   ],
                                 ),
                               ),
-                              /*
                               Padding(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 16,
+                                ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -247,7 +263,6 @@ class EditDB extends GetView<EditDBController> {
                                   ],
                                 ),
                               ),
-			      */
                             ],
                             onPressed: (i) => ctrl.selectDbType(i),
                             isSelected: ctrl.dbtypesToggle,

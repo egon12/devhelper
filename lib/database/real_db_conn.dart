@@ -3,6 +3,7 @@ import 'package:devhelper/string_extensions.dart';
 import 'package:get/get.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:postgres/postgres.dart';
+import 'package:sqflite/sqflite.dart';
 
 abstract class DBConnItf {
   Future<void> connect(Uri uri);
@@ -20,6 +21,10 @@ abstract class DBConnItf {
         var conn = MysqlDBConn();
         await conn.connect(url);
         return conn;
+      case 'sqlite':
+        var conn = SqliteDBConn();
+        await conn.connect(url);
+        return conn;
       default:
         throw ArgumentError("Cannot handle ${url.scheme} database");
     }
@@ -34,8 +39,10 @@ abstract class DBConnItf {
         return PostgresDBConn().test(url);
       case 'mysql':
         return MysqlDBConn().test(url);
+      case 'sqlite':
+        return SqliteDBConn().test(url);
       default:
-        throw Exception("unkonwn db type " + url.scheme);
+        throw Exception("unknown db type " + url.scheme);
     }
   }
 }
@@ -142,5 +149,57 @@ class MysqlDBConn extends GetxService implements DBConnItf {
   Future<List<String>> get tables async {
     var result = await conn?.query('SHOW TABLES');
     return result?.map((r) => r.values?[0] as String).toList() ?? List.empty();
+  }
+}
+
+class SqliteDBConn extends GetxService implements DBConnItf {
+  Database? conn;
+
+  /// Expects a URI like: sqlite:///absolute/path/to/db.sqlite
+  /// or sqlite://relative/path/to/db.sqlite
+  String _resolvePath(Uri url) {
+    // uri.path gives us the file path portion
+    return url.toFilePath();
+  }
+
+  @override
+  Future<void> connect(Uri url) async {
+    conn = await openDatabase(_resolvePath(url));
+  }
+
+  @override
+  Future<bool> test(Uri url) async {
+    final db = await openDatabase(_resolvePath(url));
+    await db.close();
+    return true;
+  }
+
+  @override
+  Future<TableData> query(String sql) async {
+    final db = conn;
+    if (db == null) throw StateError("Not connected");
+
+    final result = await db.rawQuery(sql);
+
+    if (result.isEmpty) {
+      return TableData(List.empty(), List.empty());
+    }
+
+    final columns = result.first.keys.map((k) => ColumnInfo.withId(k));
+    final RowsData rows = result.map((row) => Map<String, dynamic>.from(row)).toList();
+
+    return TableData(rows, columns);
+  }
+
+  @override
+  Future<List<String>> get tables async {
+    final db = conn;
+    if (db == null) throw StateError("Not connected");
+
+    final result = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+    );
+
+    return result.map((row) => row['name'] as String).toList();
   }
 }

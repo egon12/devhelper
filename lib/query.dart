@@ -3,14 +3,17 @@ import 'package:devhelper/database/real_db_conn.dart';
 import 'package:devhelper/table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// ignore: undefined_hidden_name
-import 'package:sqflite/sqflite.dart' hide Column;
+import 'package:sqflite/sqflite.dart';
 import 'package:sqlparser/sqlparser.dart' show Token, SqlEngine, TokenType;
 
 import 'database/query_repo.dart';
 import 'table_list.dart';
 
-var queryGetPage = GetPage(name: '/query', page: () => const Query(), binding: QueryBinding());
+var queryGetPage = GetPage(
+  name: '/query',
+  page: () => const Query(),
+  binding: QueryBinding(),
+);
 
 class QueryBinding extends Bindings {
   @override
@@ -22,7 +25,6 @@ class QueryBinding extends Bindings {
 }
 
 class QueryController extends GetxController {
-
   TextEditingController textCtrl = TextEditingController();
 
   FocusNode textFocus = FocusNode();
@@ -122,20 +124,25 @@ class Query extends GetView<QueryController> {
               textDirection: TextDirection.rtl,
               children: [
                 TextButton(
-                    child: const Text('EXECUTE'),
-                    onPressed: controller.execute),
+                  child: const Text('EXECUTE'),
+                  onPressed: controller.execute,
+                ),
                 TextButton(
-                    child: const Text('UPDATE'),
-                    onPressed: controller.addUpdate),
+                  child: const Text('UPDATE'),
+                  onPressed: controller.addUpdate,
+                ),
                 TextButton(
-                    child: const Text('INSERT'),
-                    onPressed: controller.addInsert),
+                  child: const Text('INSERT'),
+                  onPressed: controller.addInsert,
+                ),
                 TextButton(
-                    child: const Text('TABLES'),
-                    onPressed: controller.selectTable),
+                  child: const Text('TABLES'),
+                  onPressed: controller.selectTable,
+                ),
                 TextButton(
-                    child: const Text('SELECT'),
-                    onPressed: controller.addSelect),
+                  child: const Text('SELECT'),
+                  onPressed: controller.addSelect,
+                ),
               ],
             ),
           ],
