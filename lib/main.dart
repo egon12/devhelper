@@ -13,9 +13,7 @@ Future<void> main() async {
   Get.put(db);
   MainBinding mainBinding = MainBinding();
 
-  runApp(
-    MyApp(mainBinding: mainBinding),
-  );
+  runApp(MyApp(mainBinding: mainBinding));
 }
 
 class MyApp extends StatelessWidget {
@@ -33,10 +31,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const MainList(),
       initialBinding: mainBinding,
-      getPages: [
-        editDBGetPage,
-		queryGetPage,
-      ],
+      getPages: [editDBGetPage, queryGetPage],
     );
   }
 }

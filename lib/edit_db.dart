@@ -24,6 +24,7 @@ class EditDBController extends GetxController {
 
   final DBConnInfoRepo _repo = Get.find();
 
+  //List<bool> dbtypesToggle = [false, false, false].obs;
   List<bool> dbtypesToggle = [false, false].obs;
 
   final Map<String, TextEditingController> _textControllerMap = {
@@ -167,85 +168,116 @@ class EditDB extends GetView<EditDBController> {
       appBar: AppBar(title: const Text('Database')),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                autovalidateMode: AutovalidateMode.always,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'DB Conn',
-                        border: OutlineInputBorder(),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  autovalidateMode: AutovalidateMode.always,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'DB Conn',
+                          border: OutlineInputBorder(),
+                        ),
+                        controller: controller.connStringController,
+                        maxLines: 4,
+                        minLines: 2,
+                        textInputAction: TextInputAction.next,
                       ),
-                      controller: controller.connStringController,
-                      maxLines: 4,
-                      minLines: 2,
-                      textInputAction: TextInputAction.next,
-                    ),
-                    ButtonBar(children: [
-                      ElevatedButton(
+                      const SizedBox(height: 16),
+                      FilledButton(
                         child: const Text('Extract'),
                         onPressed: controller.extract,
                       ),
-                    ]),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                autovalidateMode: AutovalidateMode.always,
-                child: Column(
-                  children: [
-                    GetBuilder<EditDBController>(
-                      builder: (ctrl) => ToggleButtons(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Row(
-                              children: const [
-                                Icon(Mfizz.postgres),
-                                Text("PostgreSQL"),
-                              ],
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 0,
+                  bottom: 16,
+                ),
+                child: Form(
+                  autovalidateMode: AutovalidateMode.always,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      GetBuilder<EditDBController>(
+                        builder: (ctrl) => LayoutBuilder(
+                          builder: (context, constraints) => ToggleButtons(
+                            constraints: BoxConstraints.expand(
+                              //width: (constraints.maxWidth - 4) / 3,
+                              width: (constraints.maxWidth - 4) / 2,
                             ),
+                            children: const [
+                              Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Mfizz.postgres),
+                                    Text("Postgre"),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Mfizz.mysqlAlt),
+                                    Text("MySQL"),
+                                  ],
+                                ),
+                              ),
+                              /*
+                              Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Mfizz.databaseAlt2),
+                                    Text("Sqlite"),
+                                  ],
+                                ),
+                              ),
+			      */
+                            ],
+                            onPressed: (i) => ctrl.selectDbType(i),
+                            isSelected: ctrl.dbtypesToggle,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Row(
-                              children: const [
-                                Icon(Mfizz.mysqlAlt),
-                                Text("MySQL"),
-                              ],
-                            ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const EditTextField("username"),
+                      const EditTextField("password"),
+                      const EditTextField("host"),
+                      const EditTextField("port"),
+                      const EditTextField("database"),
+                      OverflowBar(
+                        children: [
+                          TextButton(
+                            child: const Text('Test'),
+                            onPressed: controller.test,
+                          ),
+                          FilledButton(
+                            child: const Text('Save'),
+                            onPressed: controller.save,
                           ),
                         ],
-                        onPressed: (i) => ctrl.selectDbType(i),
-                        isSelected: ctrl.dbtypesToggle,
                       ),
-                    ),
-                    const EditTextField("username"),
-                    const EditTextField("password"),
-                    const EditTextField("host"),
-                    const EditTextField("port"),
-                    const EditTextField("database"),
-                    ButtonBar(children: [
-                      TextButton(
-                        child: const Text('Test'),
-                        onPressed: controller.test,
-                      ),
-                      ElevatedButton(
-                        child: const Text('Save'),
-                        onPressed: controller.save,
-                      ),
-                    ]),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -259,18 +291,12 @@ class Label extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(fontSize: 12),
-    );
+    return Text(text, style: const TextStyle(fontSize: 12));
   }
 }
 
 class EditTextField extends GetView<EditDBController> {
-  const EditTextField(
-    this.label, {
-    Key? key,
-  }) : super(key: key);
+  const EditTextField(this.label, {Key? key}) : super(key: key);
 
   final String label;
 
@@ -297,14 +323,26 @@ Uri extractDbUrl({String emailtext = ''}) {
     return Uri.parse(m!.group(0)!);
   }
 
-  var usernameRE =
-      RegExp('username[\\W:]+([\\w-]+)', caseSensitive: false, multiLine: true);
-  var passwordRE = RegExp('password:[\\W:]+([\\w-]+)',
-      caseSensitive: false, multiLine: true);
-  var hostRE =
-      RegExp('ip[\\W:]+([\\w-\\.]+)', caseSensitive: false, multiLine: true);
-  var databaseRE =
-      RegExp('database[\\W:]+([\\w-]+)', caseSensitive: false, multiLine: true);
+  var usernameRE = RegExp(
+    'username[\\W:]+([\\w-]+)',
+    caseSensitive: false,
+    multiLine: true,
+  );
+  var passwordRE = RegExp(
+    'password:[\\W:]+([\\w-]+)',
+    caseSensitive: false,
+    multiLine: true,
+  );
+  var hostRE = RegExp(
+    'ip[\\W:]+([\\w-\\.]+)',
+    caseSensitive: false,
+    multiLine: true,
+  );
+  var databaseRE = RegExp(
+    'database[\\W:]+([\\w-]+)',
+    caseSensitive: false,
+    multiLine: true,
+  );
 
   var hostM = hostRE.firstMatch(emailtext);
   var databaseM = databaseRE.firstMatch(emailtext);
