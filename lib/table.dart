@@ -25,7 +25,7 @@ class DBTableController extends GetxController {
 
 class DBTable extends StatelessWidget {
 
-  const DBTable({Key? key}) : super(key: key);
+  const DBTable({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +49,7 @@ class TableInListView extends StatefulWidget {
 
   final RowsData data;
 
-  const TableInListView({Key? key, required this.colsInfo, required this.data})
-      : super(key: key);
+  const TableInListView({super.key, required this.colsInfo, required this.data});
 
   @override
   State<StatefulWidget> createState() {
@@ -78,7 +77,7 @@ class TableInListViewState extends State<TableInListView> {
 
     return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: Container(
+        child: SizedBox(
             width: width,
             child: Column(children: [
               header(),
@@ -181,7 +180,7 @@ class TableInListViewState extends State<TableInListView> {
 }
 
 extension ColumnsInfoKey on ColumnsInfo {
-  getKey(RowData row) => ValueKey('row-' + getId(row));
+  Key getKey(RowData row) => ValueKey('row-${getId(row)}');
 }
 
 extension TextAlingExtension on ColumnInfo {

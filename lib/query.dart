@@ -100,7 +100,7 @@ class QueryController extends GetxController {
 }
 
 class Query extends GetView<QueryController> {
-  const Query({Key? key}) : super(key: key);
+  const Query({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -124,24 +124,24 @@ class Query extends GetView<QueryController> {
               textDirection: TextDirection.rtl,
               children: [
                 TextButton(
-                  child: const Text('EXECUTE'),
                   onPressed: controller.execute,
+                  child: const Text('EXECUTE'),
                 ),
                 TextButton(
-                  child: const Text('UPDATE'),
                   onPressed: controller.addUpdate,
+                  child: const Text('UPDATE'),
                 ),
                 TextButton(
-                  child: const Text('INSERT'),
                   onPressed: controller.addInsert,
+                  child: const Text('INSERT'),
                 ),
                 TextButton(
-                  child: const Text('TABLES'),
                   onPressed: controller.selectTable,
+                  child: const Text('TABLES'),
                 ),
                 TextButton(
-                  child: const Text('SELECT'),
                   onPressed: controller.addSelect,
+                  child: const Text('SELECT'),
                 ),
               ],
             ),
@@ -172,7 +172,7 @@ String getQuery(TextEditingValue val) {
   var text = val.text;
   var sel = val.selection;
   var engine = SqlEngine();
-  var tokens = engine.tokenize(text);
+  var tokens = engine.tokenizeString(text);
 
   var statements = List<StatementTokens>.empty(growable: true);
   StatementTokens statement = List<Token>.empty(growable: true);

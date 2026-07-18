@@ -42,7 +42,7 @@ class EditDBController extends GetxController {
     _fillWithArguments();
   }
 
-  getTextController(name) {
+  TextEditingController? getTextController(String name) {
     return _textControllerMap[name];
   }
 
@@ -94,8 +94,8 @@ class EditDBController extends GetxController {
     );
   }
 
-  String _getText(name) {
-    return getTextController(name).text;
+  String _getText(String name) {
+    return getTextController(name)?.text ?? '';
   }
 
   int? _getPort() {
@@ -123,10 +123,10 @@ class EditDBController extends GetxController {
   }
 
   void _setText(String name, String value) {
-    getTextController(name).text = value;
+    getTextController(name)?.text = value;
   }
 
-  void _setDBType(dbname) {
+  void _setDBType(String dbname) {
     switch (dbname) {
       case 'postgres':
         dbtypesToggle[0] = true;
@@ -147,7 +147,7 @@ class EditDBController extends GetxController {
       return _getText('username');
     }
 
-    return _getText('username') + ':' + pwd;
+    return '${_getText('username')}:$pwd';
   }
 
   String _getDBType() {
@@ -161,7 +161,7 @@ class EditDBController extends GetxController {
 }
 
 class EditDB extends GetView<EditDBController> {
-  EditDB({Key? key}) : super(key: key);
+  EditDB({super.key});
 
   final focusNode = FocusNode(debugLabel: 'EditDB');
 
@@ -192,8 +192,8 @@ class EditDB extends GetView<EditDBController> {
                       ),
                       const SizedBox(height: 16),
                       FilledButton(
-                        child: const Text('Extract'),
                         onPressed: controller.extract,
+                        child: const Text('Extract'),
                       ),
                     ],
                   ),
@@ -223,6 +223,8 @@ class EditDB extends GetView<EditDBController> {
                             selectedBorderColor: Theme.of(
                               context,
                             ).colorScheme.primary,
+                            onPressed: (i) => ctrl.selectDbType(i),
+                            isSelected: ctrl.dbtypesToggle,
                             children: const [
                               Padding(
                                 padding: EdgeInsets.symmetric(
@@ -264,8 +266,6 @@ class EditDB extends GetView<EditDBController> {
                                 ),
                               ),
                             ],
-                            onPressed: (i) => ctrl.selectDbType(i),
-                            isSelected: ctrl.dbtypesToggle,
                           ),
                         ),
                       ),
@@ -278,12 +278,12 @@ class EditDB extends GetView<EditDBController> {
                       OverflowBar(
                         children: [
                           TextButton(
-                            child: const Text('Test'),
                             onPressed: controller.test,
+                            child: const Text('Test'),
                           ),
                           FilledButton(
-                            child: const Text('Save'),
                             onPressed: controller.save,
+                            child: const Text('Save'),
                           ),
                         ],
                       ),
@@ -300,7 +300,7 @@ class EditDB extends GetView<EditDBController> {
 }
 
 class Label extends StatelessWidget {
-  const Label(this.text, {Key? key}) : super(key: key);
+  const Label(this.text, {super.key});
 
   final String text;
 
@@ -311,7 +311,7 @@ class Label extends StatelessWidget {
 }
 
 class EditTextField extends GetView<EditDBController> {
-  const EditTextField(this.label, {Key? key}) : super(key: key);
+  const EditTextField(this.label, {super.key});
 
   final String label;
 
@@ -364,7 +364,7 @@ Uri extractDbUrl({String emailtext = ''}) {
   var usernameM = usernameRE.firstMatch(emailtext);
   var passwordM = passwordRE.firstMatch(emailtext);
 
-  var pwd = passwordM != null ? ':' + passwordM.group(1)! : '';
+  var pwd = passwordM != null ? ':${passwordM.group(1)!}' : '';
 
   return Uri(
     userInfo: (usernameM?.group(1) ?? '') + pwd,

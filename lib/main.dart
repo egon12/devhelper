@@ -19,7 +19,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   final MainBinding mainBinding;
 
-  const MyApp({Key? key, required this.mainBinding}) : super(key: key);
+  const MyApp({super.key, required this.mainBinding});
 
   @override
   Widget build(BuildContext context) {

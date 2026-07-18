@@ -34,7 +34,7 @@ class MainController extends GetxController {
     rx.append(() => _loadAll);
   }
 
-  select(DBConnInfoViewObject? conn) {
+  void select(DBConnInfoViewObject? conn) {
     if (conn == null) {
       return;
     }
@@ -44,7 +44,7 @@ class MainController extends GetxController {
     }).toList();
   }
 
-  edit([DBConnInfo? conn]) async {
+  Future<void> edit([DBConnInfo? conn]) async {
     await Get.toNamed('db/edit', arguments: conn);
     rx.append(() => _loadAll);
   }
@@ -58,14 +58,14 @@ class DBConnInfoViewObject extends DBConnInfo {
       {this.selected = false, this.index = -1})
       : super(uuid: c.uuid, url: c.url);
 
-  get selectedIndex => selected ? -1 : index;
+  int get selectedIndex => selected ? -1 : index;
 }
 
 extension DBConnInfoDisplay on DBConnInfoViewObject? {
   String get title {
     var username = this?.url.userInfo.split(":")[0] ?? '';
     var host = this?.url.host ?? 'NULL HOST';
-    return username + '@' + host;
+    return '$username@$host';
   }
 
   String get subtitle {

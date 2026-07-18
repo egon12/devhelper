@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:devhelper/database/db_conn_repo.dart';
 import 'package:devhelper/database/query_repo.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Future<Database> getDB() {

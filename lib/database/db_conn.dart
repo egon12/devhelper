@@ -40,7 +40,7 @@ extension DBConnInfoDisplay on DBConnInfo? {
   String get title {
     var username = this?.url.userInfo.split(":")[0] ?? '';
     var host = this?.url.host ?? 'NULL HOST';
-    return username + '@' + host;
+    return '$username@$host';
   }
 
   String get subtitle {

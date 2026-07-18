@@ -44,7 +44,7 @@ class TableListController extends GetxController {
 }
 
 class TableList extends StatelessWidget {
-  const TableList({Key? key}) : super(key: key);
+  const TableList({super.key});
 
   @override
   Widget build(BuildContext context) {

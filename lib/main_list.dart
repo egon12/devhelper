@@ -5,7 +5,7 @@ import 'main_controller.dart';
 import 'mfizz_icon.dart';
 
 class MainList extends GetView<MainController> {
-  const MainList({Key? key}) : super(key: key);
+  const MainList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +41,12 @@ class DBConnInfoListTile extends StatelessWidget {
   final Function() select;
   final Function() delete;
 
-  const DBConnInfoListTile(
-      {Key? key,
-      required this.conn,
-      required this.select,
-      required this.delete})
-      : super(key: key);
+  const DBConnInfoListTile({
+    super.key,
+    required this.conn,
+    required this.select,
+    required this.delete,
+  });
 
   @override
   Widget build(BuildContext context) {

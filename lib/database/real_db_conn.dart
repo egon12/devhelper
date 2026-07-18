@@ -2,7 +2,7 @@ import 'package:devhelper/database/column_info.dart';
 import 'package:devhelper/string_extensions.dart';
 import 'package:get/get.dart';
 import 'package:mysql1/mysql1.dart';
-import 'package:postgres/postgres.dart';
+import 'package:postgres/postgres.dart' hide ConnectionSettings;
 import 'package:sqflite/sqflite.dart';
 
 abstract class DBConnItf {
@@ -42,22 +42,32 @@ abstract class DBConnItf {
       case 'sqlite':
         return SqliteDBConn().test(url);
       default:
-        throw Exception("unknown db type " + url.scheme);
+        throw Exception("unknown db type ${url.scheme}");
     }
   }
 }
 
 class PostgresDBConn extends GetxService implements DBConnItf {
-  PostgreSQLConnection? conn;
+  Connection? conn;
 
   Uri? _lastUrl;
+
+  Future<Connection> _openConnection(Uri url) {
+    return Connection.open(
+      Endpoint(
+        host: url.host,
+        port: url.port == 0 ? 5432 : url.port,
+        database: url.pathOnly,
+        username: url.username.isEmpty ? null : url.username,
+        password: url.password.isEmpty ? null : url.password,
+      ),
+    );
+  }
 
   @override
   Future<void> connect(Uri url) async {
     _lastUrl = url;
-    conn = PostgreSQLConnection(url.host, url.port, url.pathOnly,
-        username: url.username, password: url.password);
-    await conn?.open();
+    conn = await _openConnection(url);
   }
 
   Future<void> reconnect() async {
@@ -65,27 +75,23 @@ class PostgresDBConn extends GetxService implements DBConnItf {
     if (url == null) {
       throw StateError("need to connect at least once before reconnect");
     }
-    conn = PostgreSQLConnection(url.host, url.port, url.pathOnly,
-        username: url.username, password: url.password);
-    await conn?.open();
+    conn = await _openConnection(url);
   }
 
   @override
   Future<bool> test(Uri url) async {
-    conn = PostgreSQLConnection(url.host, url.port, url.pathOnly,
-        username: url.username, password: url.password);
-    await conn?.open();
+    final c = await _openConnection(url);
+    await c.close();
     return true;
   }
 
   @override
   Future<TableData> query(String query) async {
-    var result = await conn?.query(query);
-    var columns = result?.columnDescriptions
-        .map((cd) => ColumnInfo.withId(cd.columnName));
+    var result = await conn?.execute(query);
+    var columns = result?.schema.columns
+        .map((col) => ColumnInfo.withId(col.columnName ?? ''));
 
-    RowsData? rows =
-        result?.map((row) => row.toColumnMap()).toList();
+    RowsData? rows = result?.map((row) => row.toColumnMap()).toList();
     return TableData(
       rows ?? List.empty(),
       columns ?? List.empty(),
@@ -95,13 +101,13 @@ class PostgresDBConn extends GetxService implements DBConnItf {
   @override
   Future<List<String>> get tables async {
     if (!isConnected) await reconnect();
-    var result = await conn?.query(
+    var result = await conn?.execute(
         "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public'");
     var rows = result?.map((row) => row.toColumnMap()['tablename'] as String);
     return rows?.toList() ?? List.empty();
   }
 
-  bool get isConnected => conn?.isClosed ?? false;
+  bool get isConnected => conn?.isOpen ?? false;
 }
 
 class MysqlDBConn extends GetxService implements DBConnItf {
